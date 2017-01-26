@@ -40,8 +40,61 @@ for record in search_session.query(Record):
 
 print(search_session.query(Record).first())
 
-# Expect exactly one result? use one() which will return an object; or an error if there are 0 or 2+ items
-#print(search_session.query(Record).filter_by(id=4).one())  # Useful for primary keys, will expect exactly one result
-
 # Query that return 0 rows - difference between first() and one()
-print(search_session.query(Record).filter_by(id=20).first())   # None
+print(search_session.query(Record).filter_by(id=20).first())
+
+#Querying the database for records that is more than one, results in an error
+try:
+    print(search_session.query(Record).filter_by(id=400).one())
+
+except:
+    print("Calling one when there are 0 or 2+ results causes an error")
+
+
+print('One or none')
+#Or, can use one_or_none. Returns None, or the first matching object, if found.
+print(search_session.query(Record).filter_by(id=4).one_or_none())   # Phone 3 data
+print(search_session.query(Record).filter_by(id=4000).one_or_none())   # None
+
+results = search_session.query(Record).all()
+print(results)
+for record in results:
+    print(record)
+
+# Fetch only named columns as a tuple
+for holder, country, catches in search_session.query(Record.record_holder, Record.country, Record.number_of_cataches):
+    print(holder, country, catches)
+
+#Search and return the record where the country name equal to France
+for record in search_session.query(Record).filter_by(country='France'):
+    print(record)
+search_session.close()
+
+#update the number_of_cataches of this record holder
+update_session = Session()
+old_record = update_session.query(Record).filter(Record.country=='France')
+for record in old_record:
+    record.number_of_cataches +=13
+    update_session.commit()
+    update_session.close()
+
+for record in search_session.query(Record).filter_by(country='France'):
+    print(record)
+
+#a delete object of session class
+delete_session = Session()
+#Delete the record whose country is equals to France.
+for record in delete_session.query(Record).filter_by(country='France'):
+    delete_session.delete(record)
+    delete_session.commit()
+for record in results:
+    print(record)
+
+
+
+
+
+
+
+
+results = search_session.query(Record).all()
